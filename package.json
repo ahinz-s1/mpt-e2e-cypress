@@ -1,0 +1,10 @@
+{
+  "name": "mpt-e2e-cypress",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "cypress open"
+  },
+  "devDependencies": {
+    "cypress": "^13.15.1"
+  }
+}
