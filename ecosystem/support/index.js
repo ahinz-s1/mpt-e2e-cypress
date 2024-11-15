@@ -3,6 +3,8 @@ import orders from '/helpers/api/orders';
 
 Cypress.on('uncaught:exception', () => false);
 
+const shouldCleanup = process.env.cleanup ?? true;
+
 beforeEach(() => {
   cy.wrap({}).as('current');
   cy.wrap([]).as('trails');
@@ -30,6 +32,6 @@ Cypress.Commands.add('cleanup', () => {
 });
 
 afterEach(() => {
-  cy.cleanup();
+  if (shouldCleanup) cy.cleanup();
 });
 

@@ -64,12 +64,15 @@ const prepareChangePayload = ({ agreement, items }) => ({
 
 export const calls = {
   create: (body) => query('POST', '/commerce/orders', { body }),
-  delete: (id) => query('DELETE', `commerce/orders/${id}`),
+  delete: (id) => query('DELETE', `/commerce/orders/${id}`, { role: 'Client' }),
+  process: (id) => query('POST', `/commerce/orders/${id}/process`),
+  fail: (id, message = 'by e2e scenario') => query('POST', `/commerce/orders/${id}/fail`, { role: 'Vendor', body: { statusNotes: { id, message } } }),
 }
 
 const create = (parameters = {}, transform = v => v) => {
   const {
     type: _type = 'Purchase',
+    status: _status = 'Draft',
     product: _product = { id: PRODUCT.id },
     agreement: _agreement = null,
     account: _account = { id: ACCOUNTS.CLIENT.id },
@@ -110,6 +113,10 @@ const create = (parameters = {}, transform = v => v) => {
       }
     })
     .then(calls.create)
+    .then((order) => {
+      if (_status === 'Processing') return calls.process(order.id);
+      else return order;
+    })
     .trail('order');
 };
 
@@ -117,6 +124,7 @@ export const cleanup = (order) => {
   return query('GET', `commerce/orders/${order.id}`)
     .then((order) => {
       if (order.status === 'Draft') calls.delete(order.id);
+      else if (order.status === 'Processing') calls.fail(order.id);
     });
 };
 

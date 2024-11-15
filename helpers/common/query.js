@@ -27,7 +27,6 @@ export function query(method, url, options = {}) {
     headers: _headers = {},
     body: _body,
   } = options;
-
   const __query = typeof _query === 'string' ? _query : typeof _query === 'object' ? Object.keys(_query).map((k) => `${k}=${_query[k]}`).join('&') : '';
 
   const qs = `${__query}${__query ? '&' : ''}${_rql ? [_rql] : ''}`;
@@ -37,7 +36,7 @@ export function query(method, url, options = {}) {
       method,
       url: `/public/v1/${url.replace(/^\/?(public)?\/?(v1)?/g, '')}${qs ? `?${qs}` : ''}`,
       headers: {
-        'Authorization': `Bearer ${token ?? ACCOUNTS[(_role ?? 'Client').toUpperCase()].token}`,
+        'Authorization': `Bearer ${_role ? ACCOUNTS[(_role).toUpperCase()].token : token ?? ACCOUNTS.CLIENT.token}`,
         ..._headers,
       },
       ...(_body ? { body: _body } : {}),
