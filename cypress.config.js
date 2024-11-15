@@ -2,6 +2,7 @@ const { defineConfig } = require('cypress');
 const { URL } = require('./config.json');
 
 module.exports = defineConfig({
+  projectId: 'mpt-e2e-cypress',
   downloadsFolder: 'artifacts/downloads',
   screenshotsFolder: 'artifacts/screenshots',
   videosFolder: 'artifacts/videos',
