@@ -69,7 +69,7 @@ export const calls = {
   fail: (id, message = 'by e2e scenario') => query('POST', `/commerce/orders/${id}/fail`, { role: 'Vendor', body: { statusNotes: { id, message } } }),
 }
 
-const create = (parameters = {}, transform = v => v) => {
+const create = (parameters = {}, preprocess = v => v, postprocess = v => v) => {
   const {
     type: _type = 'Purchase',
     status: _status = 'Draft',
@@ -91,13 +91,13 @@ const create = (parameters = {}, transform = v => v) => {
     .then(getCurrentLicensees)
     .then(getCurrentItems)
     .then(getCurrentParameters)
+    .as('orderDataset')
     .then((acc) => {
-
       const payload = acc.type === 'Purchase'
         ? preparePurchasePayload({ product: acc.product, licensees: acc.licensees, items: acc.items })
         : prepareChangePayload({ agreement: acc.agreement, items: acc.items });
 
-      const { agreement = {}, lines, parameters, ...rest  } = transform(payload, acc);
+      const { agreement = {}, lines, parameters, ...rest  } = preprocess(payload, acc);
 
       return {
         agreement: {
@@ -117,6 +117,7 @@ const create = (parameters = {}, transform = v => v) => {
       if (_status === 'Processing') return calls.process(order.id);
       else return order;
     })
+    .then((order) => cy.get('@orderDataset').then((acc) => postprocess(order, acc)))
     .trail('order');
 };
 

@@ -5,9 +5,17 @@ export const switchTo = (role = 'Client') => {
   if (!ACCOUNTS[role.toUpperCase()]) throw new Error(`Role "${role}" is invalid as it doesn't meet in config`);
 
   cy.get('swo-header', { timeout: 10000 }).shadow().find('[data-testid="user-menu-dropdown-btn"]').should('be.visible');
-  cy.get('swo-header').shadow().find('[data-testid="user-menu-dropdown-btn"]').click();
-  cy.get('swo-header').shadow().find('[data-testid="list-row"]').contains(ACCOUNTS[role.toUpperCase()].id).click();
-  cy.get('swo-header', { timeout: 10000 }).shadow().find('[data-testid="user-menu-dropdown-btn"]').should('contain', role);
+
+  cy.get('swo-header', { timeout: 10000 }).shadow()
+    .find(`[data-testid="user-menu-dropdown-btn"]`)
+    .then((button) => {
+      if (button.text().includes(role)) return;
+      else {
+        cy.get('swo-header').shadow().find('[data-testid="user-menu-dropdown-btn"]').click();
+        cy.get('swo-header').shadow().find('[data-testid="list-row"]').contains(ACCOUNTS[role.toUpperCase()].id).click();
+        cy.get('swo-header', { timeout: 10000 }).shadow().find('[data-testid="user-menu-dropdown-btn"]').should('contain', role);
+      }
+    });
 
   cy.wrap({
     ...ACCOUNTS[role.toUpperCase()],

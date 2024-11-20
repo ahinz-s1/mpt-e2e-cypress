@@ -1,6 +1,9 @@
+export const $hasClass = (part) => `[class^="${part}"],[class*=" ${part}"]`;
+export const $id = (id) => `[data-testid="${id}"]`;
+
 export const $get = (testid, content) => {
-  if (!content) return cy.get(`[data-testid="${testid}"]`);
-  else return cy.get(`[data-testid="${testid}"]`).contains(content)
+  if (!content) return cy.get($id(testid));
+  else return cy.get(`${$id(testid)}:contains(${content})`);
 }
 
 /**
